@@ -1,12 +1,11 @@
 name: Karate Test Pipeline
 
-# Este workflow se ejecuta al hacer push, pull_request o manualmente desde GitHub
 on:
   push:
     branches: [ "dev" ]
   pull_request:
     branches: [ "dev" ]
-  workflow_dispatch:  # Habilita el botón "Run workflow" manual
+  workflow_dispatch:
 
 jobs:
   test:
@@ -14,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: siigo  # 👈 Trabaja dentro del subdirectorio real del proyecto
+        working-directory: siigo  # apunta a tu proyecto dentro del repositorio
 
     steps:
     - name: 🧾 Checkout repo
@@ -35,8 +34,8 @@ jobs:
       run: mvn test
 
     - name: 💾 Upload Karate Summary Report
-      if: always()  # Ejecutar incluso si fallan los tests
-      uses: actions/upload-artifact@3
+      if: always()
+      uses: actions/upload-artifact@v3   # ✅ CORREGIDO: esto es lo que causaba el error
       with:
         name: karate-summary
-        path: siigo/target/karate-reports/karate-summary.html  # Ruta relativa desde la raíz del repo
+        path: siigo/target/karate-reports/karate-summary.html
