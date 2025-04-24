@@ -5,10 +5,15 @@ on:
     branches: [ "dev" ]
   pull_request:
     branches: [ "dev" ]
+  workflow_dispatch:   # 👈 Esto permite ejecutar manualmente desde el botón "Run workflow"
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: siigo
 
     steps:
     - name: 🧾 Checkout repo
@@ -28,9 +33,9 @@ jobs:
     - name: 🚀 Run Karate Tests
       run: mvn test
 
-    - name: 💾 Upload Karate HTML summary
-      if: always() # este paso se ejecuta incluso si los tests fallan
+    - name: 💾 Upload Karate Summary
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: karate-summary
-        path: target/karate-reports/karate-summary.html
+        path: siigo/target/karate-reports/karate-summary.html
