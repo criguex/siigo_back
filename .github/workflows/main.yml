@@ -1,0 +1,36 @@
+name: Karate Test Pipeline
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🧾 Checkout repo
+      uses: actions/checkout@v3
+
+    - name: ☕ Set up Java 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
+    - name: 📦 Set up Maven
+      uses: stCarolas/setup-maven@v4.5
+      with:
+        maven-version: '3.8.8'
+
+    - name: 🚀 Run Karate Tests
+      run: mvn test
+
+    - name: 💾 Upload Karate HTML summary
+      if: always() # este paso se ejecuta incluso si los tests fallan
+      uses: actions/upload-artifact@v3
+      with:
+        name: karate-summary
+        path: target/karate-reports/karate-summary.html
