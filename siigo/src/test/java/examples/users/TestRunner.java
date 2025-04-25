@@ -6,7 +6,6 @@ public class TestRunner {
 
     @Karate.Test
     Karate runAll() {
-        return Karate.run("classpath:examples") // Cambiá esta ruta si es necesario
-                .outputCucumberJson(true);
+        return Karate.run("classpath:examples"); // Cambiá esta ruta si es necesario
     }
 }
