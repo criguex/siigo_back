@@ -48,13 +48,14 @@ jobs:
             echo "✅ Se encontró el reporte en: $KARATE_REPORT_PATH"
             cp "$KARATE_REPORT_PATH" artifacts/karate-summary.html
             zip -r karate-report.zip artifacts
-            REPORT_ZIP_PATH="$GITHUB_WORKSPACE/karate-report.zip"
+            # Asegurar que la ruta del reporte ZIP sea absoluta
+            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip"
             echo "::set-output name=report_path::$REPORT_ZIP_PATH"
           else
             echo "❌ No se encontró el reporte de Karate en: $KARATE_REPORT_PATH"
             # Crear un archivo zip vacío para evitar el error de upload-artifact
             touch karate-report.zip
-            REPORT_ZIP_PATH="$GITHUB_WORKSPACE/karate-report.zip"
+            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip"
             echo "::set-output name=report_path::$REPORT_ZIP_PATH"
           fi
         id: pack_report
@@ -65,6 +66,5 @@ jobs:
         with:
           name: karate-report
           path: ${{ steps.pack_report.outputs.report_path }}
-
 
 
