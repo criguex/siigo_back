@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.criguex</groupId>
@@ -17,7 +18,7 @@
     </properties>
 
     <dependencies>
-        <!-- Karate con soporte JUnit5 -->
+        <!-- Karate con soporte JUnit 5 -->
         <dependency>
             <groupId>com.intuit.karate</groupId>
             <artifactId>karate-junit5</artifactId>
@@ -25,7 +26,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Necesario para usar ReportGenerator -->
+        <!-- Para acceso a utilidades de reporte en Karate (ej: ReportUtils) -->
         <dependency>
             <groupId>com.intuit.karate</groupId>
             <artifactId>karate-core</artifactId>
@@ -42,9 +43,9 @@
                 </excludes>
             </testResource>
         </testResources>
-        <plugins>
 
-            <!-- Compilador -->
+        <plugins>
+            <!-- Plugin de compilación de Java -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -56,7 +57,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Ejecución de pruebas -->
+            <!-- Plugin para ejecutar pruebas con Maven -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -65,31 +66,6 @@
                     <argLine>-Dfile.encoding=UTF-8</argLine>
                 </configuration>
             </plugin>
-
-            <!-- Plugin para generar reporte HTML estilo Cucumber -->
-            <plugin>
-                <groupId>net.masterthought</groupId>
-                <artifactId>maven-cucumber-reporting</artifactId>
-                <version>5.7.5</version>
-                <executions>
-                    <execution>
-                        <id>generate-cucumber-html-report</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <jsonFiles>
-                                <param>target/karate-reports/karate.json</param>
-                            </jsonFiles>
-                            <outputDirectory>target/cucumber-reports</outputDirectory>
-                            <projectName>Karate Test Report</projectName>
-                            <skip>false</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 </project>
