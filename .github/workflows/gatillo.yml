@@ -10,7 +10,7 @@ on:
 
 jobs:
   run-karate-tests:
-    runs-on: ubuntu-22.04  # ✅ Versión estable del runner
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout del código
@@ -30,12 +30,13 @@ jobs:
     - name: Ejecutar pruebas
       run: mvn test
 
-    - name: Mostrar estructura de target/ (debug)
-      run: ls -R target || echo "❌ No se encontró la carpeta target"
+    - name: Verificar si se generó el reporte
+      run: ls -l target/karate-reports || echo "⚠️ No se encontró el reporte"
 
     - name: Subir reporte de Karate
       if: always()
-      uses: actions/upload-artifact@v2 # ✅ ¡Versión anterior pero totalmente funcional!
+      uses: actions/upload-artifact@e419d9e4ce595ae99f4c9996c1589d4b5c0efb47
       with:
         name: karate-summary
         path: target/karate-reports/karate-summary.html
+
