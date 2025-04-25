@@ -2,10 +2,10 @@ name: Karate Test Pipeline
 
 on:
   push:
-    branches: [ "main" ]  # 🔁 Ahora el pipeline escucha la rama 'main'
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:       # Permite ejecución manual desde la UI de GitHub
+  workflow_dispatch:
 
 jobs:
   test:
@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: siigo  # 📁 Proyecto real está dentro de /siigo
+        working-directory: siigo
 
     steps:
     - name: 🧾 Checkout repo
@@ -34,8 +34,8 @@ jobs:
       run: mvn test
 
     - name: 💾 Upload Karate Summary Report
-      if: always()  # Ejecuta este paso incluso si fallan los tests
-      uses: actions/upload-artifact@v3
+      if: always()
+      uses: actions/upload-artifact@v3.1.3   # ✅ Versión específica y estable
       with:
         name: karate-summary
         path: siigo/target/karate-reports/karate-summary.html
