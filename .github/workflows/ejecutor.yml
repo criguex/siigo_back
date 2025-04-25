@@ -52,14 +52,15 @@ jobs:
 
       # 📤 Sube el archivo HTML del reporte
       - name: Subir karate-summary.html
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: karate-summary
           path: target/karate-reports/karate-summary.html
 
       # 📤 Sube el archivo .zip del reporte completo
       - name: Subir artefacto .zip del reporte
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: karate-report
           path: karate-report.zip
+
