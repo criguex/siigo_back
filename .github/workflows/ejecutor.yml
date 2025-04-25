@@ -30,6 +30,7 @@ jobs:
 
       - name: Instalar Dependencias y Ejecutar Pruebas
         run: |
+          cd siigo # Navega al directorio donde está el pom.xml
           mvn clean test # Ejecuta las pruebas de Maven y Karate
         # Env vars para asegurar que el path es correcto
         env:
@@ -61,4 +62,3 @@ jobs:
         with:
           name: karate-report
           path: ${{ env.REPORT_ZIP_PATH }} # Usa la variable de entorno definida anteriormente
-
