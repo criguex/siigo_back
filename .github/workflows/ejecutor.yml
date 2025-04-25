@@ -1,7 +1,7 @@
 name: Ejecutar Pruebas con Karate
 
 on:
-  workflow_dispatch:  # Permite ejecución manual desde GitHub Actions
+  workflow_dispatch:
     inputs:
       branch:
         description: 'Rama a ejecutar'
@@ -14,16 +14,16 @@ jobs:
 
     defaults:
       run:
-        working-directory: siigo  # Tu proyecto está dentro de la carpeta siigo/
+        working-directory: siigo
 
     steps:
       - name: Checkout del código
-        uses: actions/checkout@v4 # ¡Actualizado a la última versión!
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
 
       - name: Configurar Java
-        uses: actions/setup-java@v4 # ¡Actualizado a la última versión!
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '11'
@@ -32,7 +32,7 @@ jobs:
         run: mvn clean install || echo "⚠️ Fallo en install, pero seguimos para reportar"
 
       - name: Ejecutar pruebas (permitir fallos)
-        run: mvn test || echo "⚠️ Test con errores, continuando para subir reportes"
+        run: mvn test || echo "⚠️ Test con errores, continuando para subir reportar"
 
       - name: Mostrar contenido de target/
         run: ls -lR target || echo "❌ No se encontró la carpeta target/"
@@ -41,16 +41,21 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          cp target/karate-reports/karate-summary.html artifacts/karate-summary.html || echo "❌ Reporte no encontrado"
-          zip -r karate-report.zip artifacts || echo "⚠️ No se pudo empaquetar"
+          # Verifica que la carpeta karate-reports exista y contenga el archivo
+          if [ -d "target/karate-reports" ] && [ -f "target/karate-reports/karate-summary.html" ]; then
+            cp target/karate-reports/karate-summary.html artifacts/karate-summary.html
+            zip -r karate-report.zip artifacts
+          else
+            echo "❌ No se encontró el reporte de Karate en target/karate-reports/karate-summary.html"
+            # Crea un archivo vacío para que la acción de upload-artifact no falle
+            touch karate-report.zip
+          fi
 
       - name: Subir reporte de Karate
         if: always()
-        uses: actions/upload-artifact@v4 # ¡Actualizado a la última versión!
+        uses: actions/upload-artifact@v4
         with:
           name: karate-report
-          path: karate-report.zip # Subimos el .zip, es más eficiente.
-
-
+          path: karate-report.zip
 
 
