@@ -59,7 +59,7 @@ jobs:
 
       # 📦 Subir archivo .zip con el reporte
       - name: Subir artefacto .zip del reporte
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: karate-report
           path: karate-report.zip
