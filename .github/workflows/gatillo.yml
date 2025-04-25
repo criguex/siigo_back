@@ -1,5 +1,6 @@
 name: Ejecutar Pruebas con Karate
 
+# Permitir ejecución manual desde GitHub Actions (Workflow Dispatch)
 on:
   workflow_dispatch:
     inputs:
@@ -12,38 +13,45 @@ jobs:
   run-karate-tests:
     runs-on: ubuntu-22.04
 
-    defaults:  # ✅ Ejecutar cada paso dentro del subdirectorio siigo/
+    # Todos los comandos se ejecutan dentro del subdirectorio "siigo"
+    defaults:
       run:
         working-directory: siigo
 
     steps:
-    - name: Checkout del código
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.inputs.branch }}
+      # Clona el repo y se posiciona en la rama elegida
+      - name: Checkout del código
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
-    - name: Configurar Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '11'
+      # Prepara entorno Java
+      - name: Configurar Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
 
-    - name: Instalar dependencias
-      run: mvn clean install
+      # Compila y resuelve dependencias
+      - name: Instalar dependencias
+        run: mvn clean install
 
-    - name: Ejecutar pruebas
-      run: mvn test
+      # Ejecuta las pruebas de Karate
+      - name: Ejecutar pruebas
+        run: mvn test
 
-    - name: Mostrar estructura de target/
-      run: ls -lR target || echo "❌ No se encontró target/"
+      # Verifica que el reporte fue generado
+      - name: Mostrar estructura de target/
+        run: ls -lR target || echo "❌ No se encontró la carpeta target/"
 
-    - name: Empaquetar reporte de Karate manualmente
-      run: |
-        mkdir -p artifacts
-        cp target/karate-reports/karate-summary.html artifacts/karate-summary.html || echo "❌ Reporte no encontrado"
-        zip -r karate-report.zip artifacts || echo "⚠️ No se pudo empaquetar"
+      # Empaqueta el reporte generado
+      - name: Empaquetar reporte de Karate manualmente
+        run: |
+          mkdir -p artifacts
+          cp target/karate-reports/karate-summary.html artifacts/karate-summary.html || echo "❌ Reporte no encontrado"
+          zip -r karate-report.zip artifacts || echo "⚠️ No se pudo empaquetar"
 
-    - name: Listar archivos finales
-      run: ls -lh
-
+      # Lista el contenido final para debug
+      - name: Listar archivos finales
+        run: ls -lh
 
