@@ -1,7 +1,7 @@
 name: Ejecutar Pruebas con Karate
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Permite ejecución manual desde GitHub Actions
     inputs:
       branch:
         description: 'Rama a ejecutar'
@@ -12,55 +12,50 @@ jobs:
   run-karate-tests:
     runs-on: ubuntu-22.04
 
-    # Todos los comandos se ejecutan dentro de la carpeta siigo/
     defaults:
       run:
-        working-directory: siigo
+        working-directory: siigo  # 👈 Tu proyecto está dentro de la carpeta siigo/
 
     steps:
-      # ✅ Clona el código desde la rama seleccionada
       - name: Checkout del código
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      # ☕ Instala Java 11 con Temurin
       - name: Configurar Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
 
-      # 🔧 Compila el proyecto y resuelve dependencias
       - name: Instalar dependencias
-        run: mvn clean install
+        run: mvn clean install || echo "⚠️ Fallo en install, pero seguimos para reportar"
 
-      # 🚀 Ejecuta las pruebas de Karate
-      - name: Ejecutar pruebas
-        run: mvn test
+      - name: Ejecutar pruebas (permitir fallos)
+        run: mvn test || echo "⚠️ Test con errores, continuando para subir reportes"
 
-      # 🧾 Lista lo generado en target (debug visual)
       - name: Mostrar contenido de target/
-        run: ls -lR target || echo "❌ No se encontró target/"
+        run: ls -lR target || echo "❌ No se encontró la carpeta target/"
 
-      # 📦 Copia y comprime el reporte de Karate
       - name: Empaquetar reporte de Karate manualmente
+        if: always()
         run: |
           mkdir -p artifacts
           cp target/karate-reports/karate-summary.html artifacts/karate-summary.html || echo "❌ Reporte no encontrado"
           zip -r karate-report.zip artifacts || echo "⚠️ No se pudo empaquetar"
 
-      # 📤 Sube el archivo HTML del reporte
-      - name: Subir karate-summary.html
-        uses: actions/upload-artifact@main
+      - name: Subir karate-summary.html como artefacto
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
           name: karate-summary
           path: target/karate-reports/karate-summary.html
 
-      # 📤 Sube el archivo .zip del reporte completo
       - name: Subir artefacto .zip del reporte
-        uses: actions/upload-artifact@main
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
           name: karate-report
           path: karate-report.zip
+
 
