@@ -41,12 +41,13 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
+          KARATE_REPORT_PATH="target/karate-reports/karate-summary.html" # Store the path in a variable
           # Verifica que la carpeta karate-reports exista y contenga el archivo
-          if [ -d "target/karate-reports" ] && [ -f "target/karate-reports/karate-summary.html" ]; then
-            cp target/karate-reports/karate-summary.html artifacts/karate-summary.html
+          if [ -d "target/karate-reports" ] && [ -f "$KARATE_REPORT_PATH" ]; then # Use the variable
+            cp "$KARATE_REPORT_PATH" artifacts/karate-summary.html # Use the variable here too
             zip -r karate-report.zip artifacts
           else
-            echo "❌ No se encontró el reporte de Karate en target/karate-reports/karate-summary.html"
+            echo "❌ No se encontró el reporte de Karate en $KARATE_REPORT_PATH" # and here
             # Crea un archivo vacío para que la acción de upload-artifact no falle
             touch karate-report.zip
           fi
