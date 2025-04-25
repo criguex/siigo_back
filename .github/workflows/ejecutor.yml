@@ -41,22 +41,24 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          KARATE_REPORT_PATH="target/karate-reports/karate-summary.html" # Store the path in a variable
+          KARATE_REPORT_PATH="target/karate-reports/karate-summary.html"
           # Verifica que la carpeta karate-reports exista y contenga el archivo
-          if [ -d "target/karate-reports" ] && [ -f "$KARATE_REPORT_PATH" ]; then # Use the variable
-            cp "$KARATE_REPORT_PATH" artifacts/karate-summary.html # Use the variable here too
-            zip -r karate-report.zip artifacts
+          if [ -d "target/karate-reports" ] && [ -f "$KARATE_REPORT_PATH" ]; then
+            cp "$KARATE_REPORT_PATH" artifacts/karate-summary.html
+            zip -r ./karate-report.zip artifacts # Especifica la ubicación del ZIP
+            echo "::set-output name=report_path::karate-report.zip" # Exporta la ruta
           else
-            echo "❌ No se encontró el reporte de Karate en $KARATE_REPORT_PATH" # and here
-            # Crea un archivo vacío para que la acción de upload-artifact no falle
+            echo "❌ No se encontró el reporte de Karate en $KARATE_REPORT_PATH"
             touch karate-report.zip
+            echo "::set-output name=report_path::karate-report.zip" # Exporta la ruta
           fi
+        id: pack_report
 
       - name: Subir reporte de Karate
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: karate-report
-          path: karate-report.zip
+          path: ${{ steps.pack_report.outputs.report_path }} # Usa la ruta exportada
 
 
