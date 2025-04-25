@@ -37,7 +37,7 @@ jobs:
       - name: Mostrar contenido de target/
         run: ls -lR target || echo "❌ No se encontró la carpeta target/"
 
-      - name: Empaquetar reporte de Karate manualmente
+      - name: Empaquetar reporte de Karate
         if: always()
         run: |
           # Crear el directorio para los artifacts si no existe
@@ -48,21 +48,20 @@ jobs:
             echo "✅ Se encontró el reporte en: $KARATE_REPORT_PATH"
             cp "$KARATE_REPORT_PATH" artifacts/karate-summary.html
             zip -r karate-report.zip artifacts
-            # Asegurar que la ruta del reporte ZIP sea absoluta
-            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip"
-            echo "::set-output name=report_path::$REPORT_ZIP_PATH"
+            # Exportar la ruta del reporte ZIP usando el método recomendado
+            echo "REPORT_ZIP_PATH=${{ github.workspace }}/karate-report.zip" >> $GITHUB_ENV
           else
             echo "❌ No se encontró el reporte de Karate en: $KARATE_REPORT_PATH"
             # Crear un archivo zip vacío para evitar el error de upload-artifact
             touch karate-report.zip
-            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip"
-            echo "::set-output name=report_path::$REPORT_ZIP_PATH"
+             # Exportar la ruta del reporte ZIP usando el método recomendado
+            echo "REPORT_ZIP_PATH=${{ github.workspace }}/karate-report.zip" >> $GITHUB_ENV
           fi
-        id: pack_report
 
       - name: Subir reporte de Karate
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: karate-report
-          path: ${{ steps.pack_report.outputs.report_path }}
+          path: ${{ env.REPORT_ZIP_PATH }}
+
