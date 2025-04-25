@@ -49,14 +49,14 @@ jobs:
             cp "$KARATE_REPORT_PATH" artifacts/karate-summary.html
             zip -r karate-report.zip artifacts
             # Exportar la ruta del reporte ZIP usando el método recomendado
-            echo "REPORT_ZIP_PATH=${{ github.workspace }}/karate-report.zip" >> $GITHUB_ENV
-            echo "ARTIFACTS_DIR=${{ github.workspace }}/artifacts" >> $GITHUB_ENV # Add this line
+            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip" # Directly define here
+            echo "REPORT_ZIP_PATH=$REPORT_ZIP_PATH" >> $GITHUB_ENV
           else
             echo "❌ No se encontró el reporte de Karate en: $KARATE_REPORT_PATH"
             # Crear un archivo zip vacío para evitar el error de upload-artifact
             touch karate-report.zip
-            echo "REPORT_ZIP_PATH=${{ github.workspace }}/karate-report.zip" >> $GITHUB_ENV
-            echo "ARTIFACTS_DIR=${{ github.workspace }}/artifacts" >> $GITHUB_ENV # Add this line
+            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip"  # Directly define here
+            echo "REPORT_ZIP_PATH=$REPORT_ZIP_PATH" >> $GITHUB_ENV
           fi
 
       - name: Subir reporte de Karate
@@ -65,5 +65,4 @@ jobs:
         with:
           name: karate-report
           path: ${{ env.REPORT_ZIP_PATH }}
-        #  path: ${{ env.ARTIFACTS_DIR }} # change to this if you want to upload the entire artifacts directory.
 
