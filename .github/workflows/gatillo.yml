@@ -10,7 +10,7 @@ on:
 
 jobs:
   run-karate-tests:
-    runs-on: ubuntu-22.04  # 👈 Versión estable, evita el bug de ubuntu-24.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout del código
@@ -29,6 +29,13 @@ jobs:
 
     - name: Ejecutar pruebas
       run: mvn test
+
+    - name: Verificar existencia del reporte
+      run: |
+        if [ ! -f target/karate-reports/karate-summary.html ]; then
+          echo "Reporte de Karate no encontrado."
+          exit 1
+        fi
 
     - name: Subir reporte de Karate
       if: always()
