@@ -1,42 +1,37 @@
-name: Karate Test Pipeline
+name: Ejecutar Pruebas con Karate
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+  workflow_dispatch: # Permite ejecutar manualmente el workflow
+    inputs:
+      branch:
+        description: 'Rama a ejecutar'
+        required: true
+        default: 'main'
 
 jobs:
-  test:
+  run-karate-tests:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: siigo
-
     steps:
-    - name: 🧾 Checkout repo
+    - name: Checkout del código
       uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.inputs.branch }}
 
-    - name: ☕ Set up Java 11
+    - name: Configurar Java
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
         java-version: '11'
 
-    - name: 📦 Set up Maven
-      uses: stCarolas/setup-maven@v4.5
-      with:
-        maven-version: '3.8.8'
+    - name: Instalar dependencias
+      run: mvn clean install
 
-    - name: 🚀 Run Karate Tests
+    - name: Ejecutar pruebas
       run: mvn test
 
-    - name: 💾 Upload Karate Summary Report
-      if: always()
+    - name: Subir reporte de Karate
       uses: actions/upload-artifact@v3
       with:
         name: karate-summary
-        path: siigo/target/karate-reports/karate-summary.html
-
+        path: target/karate-reports/karate-summary.html
