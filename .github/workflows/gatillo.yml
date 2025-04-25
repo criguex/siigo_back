@@ -12,6 +12,10 @@ jobs:
   run-karate-tests:
     runs-on: ubuntu-22.04
 
+    defaults:  # ✅ Ejecutar cada paso dentro del subdirectorio siigo/
+      run:
+        working-directory: siigo
+
     steps:
     - name: Checkout del código
       uses: actions/checkout@v3
