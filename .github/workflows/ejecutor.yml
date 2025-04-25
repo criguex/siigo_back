@@ -40,18 +40,21 @@ jobs:
       - name: Empaquetar reporte de Karate manualmente
         if: always()
         run: |
+          # Crear el directorio para los artifacts si no existe
           mkdir -p artifacts
           KARATE_REPORT_PATH="target/karate-reports/karate-summary.html"
-          # Verifica que la carpeta karate-reports exista y contenga el archivo
-          if [ -d "target/karate-reports" ] && [ -f "$KARATE_REPORT_PATH" ]; then
+          # Verificar si el reporte existe antes de intentar copiarlo y empaquetarlo
+          if [ -f "$KARATE_REPORT_PATH" ]; then
+            echo "✅ Se encontró el reporte en: $KARATE_REPORT_PATH"
             cp "$KARATE_REPORT_PATH" artifacts/karate-summary.html
-            zip -r karate-report.zip artifacts #  ZIP en el directorio actual
-            REPORT_ZIP_PATH="$GITHUB_WORKSPACE/karate-report.zip" # Ruta completa
+            zip -r karate-report.zip artifacts
+            REPORT_ZIP_PATH="$GITHUB_WORKSPACE/karate-report.zip"
             echo "::set-output name=report_path::$REPORT_ZIP_PATH"
           else
-            echo "❌ No se encontró el reporte de Karate en $KARATE_REPORT_PATH"
+            echo "❌ No se encontró el reporte de Karate en: $KARATE_REPORT_PATH"
+            # Crear un archivo zip vacío para evitar el error de upload-artifact
             touch karate-report.zip
-            REPORT_ZIP_PATH="$GITHUB_WORKSPACE/karate-report.zip" # Ruta completa
+            REPORT_ZIP_PATH="$GITHUB_WORKSPACE/karate-report.zip"
             echo "::set-output name=report_path::$REPORT_ZIP_PATH"
           fi
         id: pack_report
