@@ -66,5 +66,3 @@ jobs:
         with:
           name: karate-report
           path: ${{ steps.pack_report.outputs.report_path }}
-
-
