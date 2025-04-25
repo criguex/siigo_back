@@ -1,68 +1,64 @@
-name: Ejecutar Pruebas con Karate
+name: Ejecutar Pruebas de Karate
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main  # Se ejecuta en cada push a la rama main
+  workflow_dispatch: # Permite la ejecución manual desde la interfaz de GitHub Actions
     inputs:
       branch:
-        description: 'Rama a ejecutar'
-        required: true
+        description: 'Rama a ejecutar (opcional, por defecto es main)'
+        required: false
         default: 'main'
 
 jobs:
-  run-karate-tests:
-    runs-on: ubuntu-22.04
-
-    defaults:
-      run:
-        working-directory: siigo
+  ejecutar-pruebas:
+    runs-on: ubuntu-22.04 # Usa una imagen de Ubuntu más reciente
 
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch }}
+          ref: ${{ github.event.inputs.branch || 'main' }} # Usa la rama del input o main por defecto
 
       - name: Configurar Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '11' # Usa una versión de Java compatible con Karate y Maven
+          cache: 'maven' # Habilita el caché de Maven para acelerar las builds
 
-      - name: Instalar dependencias
-        run: mvn clean install || echo "⚠️ Fallo en install, pero seguimos para reportar"
-
-      - name: Ejecutar pruebas (permitir fallos)
-        run: mvn test || echo "⚠️ Test con errores, continuando para subir reportar"
-
-      - name: Mostrar contenido de target/
-        run: ls -lR target || echo "❌ No se encontró la carpeta target/"
-
-      - name: Empaquetar reporte de Karate
-        if: always()
+      - name: Instalar Dependencias y Ejecutar Pruebas
         run: |
-          # Crear el directorio para los artifacts si no existe
-          mkdir -p artifacts
-          KARATE_REPORT_PATH="target/karate-reports/karate-summary.html"
-          # Verificar si el reporte existe antes de intentar copiarlo y empaquetarlo
-          if [ -f "$KARATE_REPORT_PATH" ]; then
-            echo "✅ Se encontró el reporte en: $KARATE_REPORT_PATH"
-            cp "$KARATE_REPORT_PATH" artifacts/karate-summary.html
-            zip -r karate-report.zip artifacts
-            # Exportar la ruta del reporte ZIP usando el método recomendado
-            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip" # Directly define here
+          mvn clean test # Ejecuta las pruebas de Maven y Karate
+        # Env vars para asegurar que el path es correcto
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+
+      - name: Empaquetar Reporte de Karate
+        if: always() # Se ejecuta incluso si las pruebas fallan
+        run: |
+          # Verifica si el directorio de reportes existe
+          if [ -d "target/karate-reports" ]; then
+            echo "✅ Se encontró el directorio de reportes de Karate."
+            # Comprime el directorio de reportes
+            zip -r karate-report.zip target/karate-reports
+            echo "✅ Se creó el archivo karate-report.zip"
+            # Define la ruta del reporte ZIP
+            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip"
             echo "REPORT_ZIP_PATH=$REPORT_ZIP_PATH" >> $GITHUB_ENV
           else
-            echo "❌ No se encontró el reporte de Karate en: $KARATE_REPORT_PATH"
-            # Crear un archivo zip vacío para evitar el error de upload-artifact
+            echo "❌ No se encontró el directorio de reportes de Karate."
+            # Crea un archivo ZIP vacío para evitar errores
             touch karate-report.zip
-            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip"  # Directly define here
+            REPORT_ZIP_PATH="${{ github.workspace }}/karate-report.zip"
             echo "REPORT_ZIP_PATH=$REPORT_ZIP_PATH" >> $GITHUB_ENV
           fi
 
-      - name: Subir reporte de Karate
-        if: always()
+      - name: Subir Reporte de Karate como Artefacto
+        if: always() # Se ejecuta incluso si las pruebas fallan
         uses: actions/upload-artifact@v4
         with:
           name: karate-report
-          path: ${{ env.REPORT_ZIP_PATH }}
+          path: ${{ env.REPORT_ZIP_PATH }} # Usa la variable de entorno definida anteriormente
 
