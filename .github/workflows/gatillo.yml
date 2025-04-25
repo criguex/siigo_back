@@ -12,54 +12,56 @@ jobs:
   run-karate-tests:
     runs-on: ubuntu-22.04
 
+    # Esto hace que todos los comandos se ejecuten desde la carpeta siigo/
     defaults:
       run:
-        working-directory: siigo  # 👈 Todo se ejecuta desde la carpeta siigo/
+        working-directory: siigo
 
     steps:
-      # Descarga el código fuente
+      # Checkout del código en la rama seleccionada
       - name: Checkout del código
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      # Instala Java 11
+      # Configura Java 11 con Temurin
       - name: Configurar Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
 
-      # Compila el proyecto y resuelve dependencias
+      # Compila el proyecto y descarga las dependencias
       - name: Instalar dependencias
         run: mvn clean install
 
-      # Ejecuta las pruebas de Karate
+      # Ejecuta los tests con Maven
       - name: Ejecutar pruebas
         run: mvn test
 
-      # Verifica si se generó el reporte HTML
+      # Muestra la estructura de la carpeta target (debug visual)
       - name: Mostrar contenido de target/
         run: ls -lR target || echo "❌ No se encontró target/"
 
-      # Empaqueta el reporte HTML en un .zip
+      # Crea un .zip del reporte HTML generado
       - name: Empaquetar reporte de Karate manualmente
         run: |
           mkdir -p artifacts
           cp target/karate-reports/karate-summary.html artifacts/karate-summary.html || echo "❌ Reporte no encontrado"
           zip -r karate-report.zip artifacts || echo "⚠️ No se pudo empaquetar"
 
-      # 📥 Subir karate-summary.html como archivo suelto (ver directamente)
+      # 📥 Subir karate-summary.html como archivo suelto
       - name: Subir karate-summary.html
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: karate-summary
           path: target/karate-reports/karate-summary.html
 
-      # 📦 Subir el archivo zip con el reporte
+      # 📦 Subir archivo .zip con el reporte
       - name: Subir artefacto .zip del reporte
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: karate-report
           path: karate-report.zip
+
 
