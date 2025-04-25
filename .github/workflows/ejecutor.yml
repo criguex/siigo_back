@@ -14,16 +14,16 @@ jobs:
 
     defaults:
       run:
-        working-directory: siigo  # 👈 Tu proyecto está dentro de la carpeta siigo/
+        working-directory: siigo  # Tu proyecto está dentro de la carpeta siigo/
 
     steps:
       - name: Checkout del código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # ¡Actualizado a la última versión!
         with:
           ref: ${{ github.event.inputs.branch }}
 
       - name: Configurar Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4 # ¡Actualizado a la última versión!
         with:
           distribution: 'temurin'
           java-version: '11'
@@ -44,18 +44,13 @@ jobs:
           cp target/karate-reports/karate-summary.html artifacts/karate-summary.html || echo "❌ Reporte no encontrado"
           zip -r karate-report.zip artifacts || echo "⚠️ No se pudo empaquetar"
 
-      - name: Subir karate-summary.html como artefacto
+      - name: Subir reporte de Karate
         if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: karate-summary
-          path: target/karate-reports/karate-summary.html
-
-      - name: Subir artefacto .zip del reporte
-        if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # ¡Actualizado a la última versión!
         with:
           name: karate-report
-          path: karate-report.zip
+          path: karate-report.zip # Subimos el .zip, es más eficiente.
+
+
 
 
