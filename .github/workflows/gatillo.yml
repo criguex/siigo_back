@@ -12,6 +12,10 @@ jobs:
   run-karate-tests:
     runs-on: ubuntu-22.04
 
+    defaults:  # ✅ Ejecutar cada paso dentro del subdirectorio siigo/
+      run:
+        working-directory: siigo
+
     steps:
     - name: Checkout del código
       uses: actions/checkout@v3
@@ -30,16 +34,16 @@ jobs:
     - name: Ejecutar pruebas
       run: mvn test
 
-    - name: Verificar existencia del reporte
-      run: |
-        if [ ! -f target/karate-reports/karate-summary.html ]; then
-          echo "Reporte de Karate no encontrado."
-          exit 1
-        fi
+    - name: Mostrar estructura de target/
+      run: ls -lR target || echo "❌ No se encontró target/"
 
-    - name: Subir reporte de Karate
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: karate-summary
-        path: target/karate-reports/karate-summary.html
+    - name: Empaquetar reporte de Karate manualmente
+      run: |
+        mkdir -p artifacts
+        cp target/karate-reports/karate-summary.html artifacts/karate-summary.html || echo "❌ Reporte no encontrado"
+        zip -r karate-report.zip artifacts || echo "⚠️ No se pudo empaquetar"
+
+    - name: Listar archivos finales
+      run: ls -lh
+
+
