@@ -2,10 +2,10 @@ name: Karate Test Pipeline
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]  # 🔁 Ahora el pipeline escucha la rama 'main'
   pull_request:
-    branches: [ "dev" ]
-  workflow_dispatch:
+    branches: [ "main" ]
+  workflow_dispatch:       # Permite ejecución manual desde la UI de GitHub
 
 jobs:
   test:
@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: siigo  # apunta a tu proyecto dentro del repositorio
+        working-directory: siigo  # 📁 Proyecto real está dentro de /siigo
 
     steps:
     - name: 🧾 Checkout repo
@@ -34,8 +34,9 @@ jobs:
       run: mvn test
 
     - name: 💾 Upload Karate Summary Report
-      if: always()
-      uses: actions/upload-artifact@v3   # ✅ CORREGIDO: esto es lo que causaba el error
+      if: always()  # Ejecuta este paso incluso si fallan los tests
+      uses: actions/upload-artifact@v3
       with:
         name: karate-summary
         path: siigo/target/karate-reports/karate-summary.html
+
