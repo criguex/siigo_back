@@ -35,7 +35,7 @@ jobs:
 
     - name: 💾 Upload Karate Summary Report
       if: always()
-      uses: actions/upload-artifact@v3.1.3   # ✅ Versión específica y estable
+      uses: actions/upload-artifact@v3
       with:
         name: karate-summary
         path: siigo/target/karate-reports/karate-summary.html
