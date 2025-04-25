@@ -39,6 +39,7 @@ jobs:
       - name: Empaquetar Reporte de Karate
         if: always() # Se ejecuta incluso si las pruebas fallan
         run: |
+          cd siigo # IMPORTANT: Navigate to the 'siigo' directory
           # Verifica si el directorio de reportes existe
           if [ -d "target/karate-reports" ]; then
             echo "✅ Se encontró el directorio de reportes de Karate."
